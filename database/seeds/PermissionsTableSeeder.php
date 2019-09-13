@@ -1,0 +1,403 @@
+<?php
+
+use App\Permission;
+use Illuminate\Database\Seeder;
+
+class PermissionsTableSeeder extends Seeder
+{
+    public function run()
+    {
+        $permissions = [[
+            'id'         => '1',
+            'title'      => 'user_management_access',
+            'created_at' => '2019-07-27 03:54:55',
+            'updated_at' => '2019-07-27 03:54:55',
+        ],
+            [
+                'id'         => '2',
+                'title'      => 'permission_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '3',
+                'title'      => 'permission_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '4',
+                'title'      => 'permission_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '5',
+                'title'      => 'permission_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '6',
+                'title'      => 'permission_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '7',
+                'title'      => 'role_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '8',
+                'title'      => 'role_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '9',
+                'title'      => 'role_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '10',
+                'title'      => 'role_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '11',
+                'title'      => 'role_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '12',
+                'title'      => 'user_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '13',
+                'title'      => 'user_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '14',
+                'title'      => 'user_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '15',
+                'title'      => 'user_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '16',
+                'title'      => 'user_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '17',
+                'title'      => 'team_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '18',
+                'title'      => 'team_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '19',
+                'title'      => 'team_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '20',
+                'title'      => 'team_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '21',
+                'title'      => 'team_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '22',
+                'title'      => 'evento_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '23',
+                'title'      => 'lista_de_evento_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '24',
+                'title'      => 'lista_de_evento_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '25',
+                'title'      => 'lista_de_evento_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '26',
+                'title'      => 'lista_de_evento_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '27',
+                'title'      => 'lista_de_evento_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '28',
+                'title'      => 'miembro_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '29',
+                'title'      => 'finanzas_de_provincium_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '30',
+                'title'      => 'provincium_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '31',
+                'title'      => 'provincium_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '32',
+                'title'      => 'provincium_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '33',
+                'title'      => 'provincium_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '34',
+                'title'      => 'provincium_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '35',
+                'title'      => 'grupo_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '36',
+                'title'      => 'grupo_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '37',
+                'title'      => 'grupo_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '38',
+                'title'      => 'grupo_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '39',
+                'title'      => 'grupo_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '40',
+                'title'      => 'control_de_cheque_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '41',
+                'title'      => 'control_de_cheque_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '42',
+                'title'      => 'control_de_cheque_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '43',
+                'title'      => 'control_de_cheque_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '44',
+                'title'      => 'control_de_cheque_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '45',
+                'title'      => 'control_de_gasto_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '46',
+                'title'      => 'control_de_gasto_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '47',
+                'title'      => 'control_de_gasto_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '48',
+                'title'      => 'control_de_gasto_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '49',
+                'title'      => 'control_de_gasto_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '50',
+                'title'      => 'movimientos_bancario_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '51',
+                'title'      => 'movimientos_bancario_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '52',
+                'title'      => 'movimientos_bancario_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '53',
+                'title'      => 'movimientos_bancario_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '54',
+                'title'      => 'movimientos_bancario_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '55',
+                'title'      => 'avisos_de_salida_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '56',
+                'title'      => 'avisos_de_salida_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '57',
+                'title'      => 'avisos_de_salida_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '58',
+                'title'      => 'avisos_de_salida_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '59',
+                'title'      => 'avisos_de_salida_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '60',
+                'title'      => 'administracion_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '61',
+                'title'      => 'registro_evento_create',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '62',
+                'title'      => 'registro_evento_edit',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '63',
+                'title'      => 'registro_evento_show',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '64',
+                'title'      => 'registro_evento_delete',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ],
+            [
+                'id'         => '65',
+                'title'      => 'registro_evento_access',
+                'created_at' => '2019-07-27 03:54:55',
+                'updated_at' => '2019-07-27 03:54:55',
+            ]];
+
+        Permission::insert($permissions);
+    }
+}

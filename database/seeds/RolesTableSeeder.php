@@ -7,20 +7,16 @@ class RolesTableSeeder extends Seeder
 {
     public function run()
     {
-        $roles = [[
-            'id'         => 1,
-            'title'      => 'Admin',
-            'created_at' => '2019-06-03 03:05:11',
-            'updated_at' => '2019-06-03 03:05:11',
-            'deleted_at' => null,
-        ],
+        $roles = [
             [
-                'id'         => 2,
-                'title'      => 'User',
-                'created_at' => '2019-06-03 03:05:11',
-                'updated_at' => '2019-06-03 03:05:11',
-                'deleted_at' => null,
-            ]];
+                'id'    => 1,
+                'title' => 'Admin',
+            ],
+            [
+                'id'    => 2,
+                'title' => 'User',
+            ],
+        ];
 
         Role::insert($roles);
     }

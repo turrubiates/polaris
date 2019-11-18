@@ -6,13 +6,13 @@ use Carbon\Carbon;
 use Hash;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use SoftDeletes, Notifiable;
+    use Notifiable, HasApiTokens;
 
     public $table = 'users';
 
@@ -35,22 +35,23 @@ class User extends Authenticatable
         'cum',
         'sexo',
         'curp',
+        'name',
         'email',
+        'cargo',
         'grupo',
         'estado',
-        'nombre',
-        'colonia',
         'team_id',
+        'colonia',
         'seccion',
-        'vigencia',
-        'religion',
-        'password',
         'distrito',
-        'provincia',
+        'password',
+        'religion',
+        'vigencia',
+        'localidad',
         'ocupacion',
+        'provincia',
         'domicilio',
         'municipio',
-        'localidad',
         'created_at',
         'updated_at',
         'deleted_at',
@@ -64,14 +65,54 @@ class User extends Authenticatable
         'telefono_particular',
     ];
 
-    public function roles()
+    public function listaDeEventos()
     {
-        return $this->belongsToMany(Role::class);
+        return $this->hasMany(ListaDeEvento::class, 'responsable_de_evento_id', 'id');
     }
 
-    public function team()
+    public function fichaMedicas()
     {
-        return $this->belongsTo(Team::class, 'team_id');
+        return $this->hasMany(FichaMedica::class, 'miembro_id', 'id');
+    }
+
+    public function actasCeps()
+    {
+        return $this->hasMany(ActasCep::class, 'vobo_id', 'id');
+    }
+
+    public function actasDeCops()
+    {
+        return $this->hasMany(ActasDeCop::class, 'vobo_id', 'id');
+    }
+
+    public function actasCogs()
+    {
+        return $this->hasMany(ActasCog::class, 'vobo_id', 'id');
+    }
+
+    public function solicitudDeCambioDeGrupos()
+    {
+        return $this->hasMany(SolicitudDeCambioDeGrupo::class, 'persona_a_cambiar_id', 'id');
+    }
+
+    public function registroEventos()
+    {
+        return $this->belongsToMany(RegistroEvento::class);
+    }
+
+    public function acuerdosCeps()
+    {
+        return $this->belongsToMany(AcuerdosCep::class);
+    }
+
+    public function acuerdosCops()
+    {
+        return $this->belongsToMany(AcuerdosCop::class);
+    }
+
+    public function acuerdosCogs()
+    {
+        return $this->belongsToMany(AcuerdosCog::class);
     }
 
     public function setPasswordAttribute($input)
@@ -94,6 +135,16 @@ class User extends Authenticatable
     public function setEmailVerifiedAtAttribute($value)
     {
         $this->attributes['email_verified_at'] = $value ? Carbon::createFromFormat(config('panel.date_format') . ' ' . config('panel.time_format'), $value)->format('Y-m-d H:i:s') : null;
+    }
+
+    public function team()
+    {
+        return $this->belongsTo(Team::class, 'team_id');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
     }
 
     public function getNacimientoAttribute($value)

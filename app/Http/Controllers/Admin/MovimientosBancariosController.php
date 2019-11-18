@@ -8,9 +8,10 @@ use App\Http\Controllers\Traits\CsvImportTrait;
 use App\Http\Requests\MassDestroyMovimientosBancarioRequest;
 use App\Http\Requests\StoreMovimientosBancarioRequest;
 use App\Http\Requests\UpdateMovimientosBancarioRequest;
-use App\ListaDeEvento;
 use App\MovimientosBancario;
+use Gate;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class MovimientosBancariosController extends Controller
@@ -20,8 +21,7 @@ class MovimientosBancariosController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = MovimientosBancario::query();
-            $query->with(['referencia', 'cheque']);
+            $query = MovimientosBancario::with(['cheque'])->select(sprintf('%s.*', (new MovimientosBancario)->table));
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -42,8 +42,12 @@ class MovimientosBancariosController extends Controller
                 ));
             });
 
-            $table->editColumn('listaDeEvento.referencia', function ($row) {
-                return $row->referencia_id ? $row->referencia->referencia_de_pago : '';
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : "";
+            });
+
+            $table->editColumn('referencia', function ($row) {
+                return $row->referencia ? $row->referencia : "";
             });
             $table->editColumn('descripcion', function ($row) {
                 return $row->descripcion ? $row->descripcion : "";
@@ -60,10 +64,11 @@ class MovimientosBancariosController extends Controller
             $table->editColumn('numero_de_movimiento', function ($row) {
                 return $row->numero_de_movimiento ? $row->numero_de_movimiento : "";
             });
-            $table->editColumn('controlDeCheque.cheque', function ($row) {
-                return $row->cheque_id ? $row->cheque->numero_de_cheque : '';
+            $table->addColumn('cheque_numero_de_cheque', function ($row) {
+                return $row->cheque ? $row->cheque->numero_de_cheque : '';
             });
-            $table->rawColumns(['actions', 'placeholder', 'referencia', 'cheque']);
+
+            $table->rawColumns(['actions', 'placeholder', 'cheque']);
 
             return $table->make(true);
         }
@@ -73,19 +78,15 @@ class MovimientosBancariosController extends Controller
 
     public function create()
     {
-        abort_unless(\Gate::allows('movimientos_bancario_create'), 403);
-
-        $referencias = ListaDeEvento::all()->pluck('referencia_de_pago', 'id')->prepend(trans('global.pleaseSelect'), '');
+        abort_if(Gate::denies('movimientos_bancario_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $cheques = ControlDeCheque::all()->pluck('numero_de_cheque', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        return view('admin.movimientosBancarios.create', compact('referencias', 'cheques'));
+        return view('admin.movimientosBancarios.create', compact('cheques'));
     }
 
     public function store(StoreMovimientosBancarioRequest $request)
     {
-        abort_unless(\Gate::allows('movimientos_bancario_create'), 403);
-
         $movimientosBancario = MovimientosBancario::create($request->all());
 
         return redirect()->route('admin.movimientos-bancarios.index');
@@ -93,21 +94,17 @@ class MovimientosBancariosController extends Controller
 
     public function edit(MovimientosBancario $movimientosBancario)
     {
-        abort_unless(\Gate::allows('movimientos_bancario_edit'), 403);
-
-        $referencias = ListaDeEvento::all()->pluck('referencia_de_pago', 'id')->prepend(trans('global.pleaseSelect'), '');
+        abort_if(Gate::denies('movimientos_bancario_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $cheques = ControlDeCheque::all()->pluck('numero_de_cheque', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $movimientosBancario->load('referencia', 'cheque', 'team');
+        $movimientosBancario->load('cheque');
 
-        return view('admin.movimientosBancarios.edit', compact('referencias', 'cheques', 'movimientosBancario'));
+        return view('admin.movimientosBancarios.edit', compact('cheques', 'movimientosBancario'));
     }
 
     public function update(UpdateMovimientosBancarioRequest $request, MovimientosBancario $movimientosBancario)
     {
-        abort_unless(\Gate::allows('movimientos_bancario_edit'), 403);
-
         $movimientosBancario->update($request->all());
 
         return redirect()->route('admin.movimientos-bancarios.index');
@@ -115,16 +112,16 @@ class MovimientosBancariosController extends Controller
 
     public function show(MovimientosBancario $movimientosBancario)
     {
-        abort_unless(\Gate::allows('movimientos_bancario_show'), 403);
+        abort_if(Gate::denies('movimientos_bancario_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $movimientosBancario->load('referencia', 'cheque', 'team');
+        $movimientosBancario->load('cheque');
 
         return view('admin.movimientosBancarios.show', compact('movimientosBancario'));
     }
 
     public function destroy(MovimientosBancario $movimientosBancario)
     {
-        abort_unless(\Gate::allows('movimientos_bancario_delete'), 403);
+        abort_if(Gate::denies('movimientos_bancario_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $movimientosBancario->delete();
 
@@ -135,6 +132,6 @@ class MovimientosBancariosController extends Controller
     {
         MovimientosBancario::whereIn('id', request('ids'))->delete();
 
-        return response(null, 204);
+        return response(null, Response::HTTP_NO_CONTENT);
     }
 }

@@ -5,12 +5,15 @@ namespace App\Http\Requests;
 use App\Grupo;
 use Gate;
 use Illuminate\Foundation\Http\FormRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class MassDestroyGrupoRequest extends FormRequest
 {
     public function authorize()
     {
-        return abort_if(Gate::denies('grupo_delete'), 403, '403 Forbidden') ?? true;
+        abort_if(Gate::denies('grupo_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        return true;
     }
 
     public function rules()

@@ -14,6 +14,10 @@ class RegistroEvento extends Model implements HasMedia
 
     public $table = 'registro_eventos';
 
+    protected $appends = [
+        'comprobante_de_pago',
+    ];
+
     protected $dates = [
         'created_at',
         'updated_at',
@@ -43,17 +47,17 @@ class RegistroEvento extends Model implements HasMedia
         return $this->belongsTo(Grupo::class, 'grupo_id');
     }
 
-    public function participantes_mls()
+    public function participantes()
     {
         return $this->belongsToMany(User::class);
     }
 
     public function getComprobanteDePagoAttribute()
     {
-        $files = $this->getMedia('comprobanteDePago');
-
+        $files = $this->getMedia('comprobante_de_pago');
         $files->each(function ($item) {
-            $item->url = $item->getUrl();
+            $item->url       = $item->getUrl();
+            $item->thumbnail = $item->getUrl('thumb');
         });
 
         return $files;

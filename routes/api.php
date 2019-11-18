@@ -1,27 +1,21 @@
 <?php
 
-Route::group(['prefix' => 'v1', 'as' => 'admin.', 'namespace' => 'Api\V1\Admin'], function () {
+Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1\Admin', 'middleware' => ['auth:api']], function () {
+    // Permissions
     Route::apiResource('permissions', 'PermissionsApiController');
 
+    // Roles
     Route::apiResource('roles', 'RolesApiController');
 
-    Route::apiResource('users', 'UsersApiController');
-
-    Route::apiResource('teams', 'TeamApiController');
-
-    Route::apiResource('lista-de-eventos', 'ListaDeEventosApiController');
-
+    // Provincia
     Route::apiResource('provincia', 'ProvinciasApiController');
 
+    // Grupos
     Route::apiResource('grupos', 'GruposApiController');
 
-    Route::apiResource('control-de-cheques', 'ControlDeChequesApiController');
+    // Regnals
+    Route::apiResource('regnals', 'RegnalApiController');
 
-    Route::apiResource('control-de-gastos', 'ControlDeGastosApiController');
-
-    Route::apiResource('movimientos-bancarios', 'MovimientosBancariosApiController');
-
-    Route::apiResource('avisos-de-salidas', 'AvisosDeSalidaApiController');
-
-    Route::apiResource('registro-eventos', 'RegistroEventosApiController');
+    // Presupuesto Anuals
+    Route::apiResource('presupuesto-anuals', 'PresupuestoAnualApiController');
 });

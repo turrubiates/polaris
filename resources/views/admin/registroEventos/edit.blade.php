@@ -1,86 +1,79 @@
 @extends('layouts.admin')
 @section('content')
-<div class="content">
 
-    <div class="row">
-        <div class="col-lg-12">
+<div class="card">
+    <div class="card-header">
+        {{ trans('global.edit') }} {{ trans('cruds.registroEvento.title_singular') }}
+    </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    {{ trans('global.edit') }} {{ trans('cruds.registroEvento.title_singular') }}
-                </div>
-                <div class="panel-body">
-
-                    <form action="{{ route("admin.registro-eventos.update", [$registroEvento->id]) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-                        <div class="form-group {{ $errors->has('evento_id') ? 'has-error' : '' }}">
-                            <label for="evento">{{ trans('cruds.registroEvento.fields.evento') }}*</label>
-                            <select name="evento_id" id="evento" class="form-control select2" required>
-                                @foreach($eventos as $id => $evento)
-                                    <option value="{{ $id }}" {{ (isset($registroEvento) && $registroEvento->evento ? $registroEvento->evento->id : old('evento_id')) == $id ? 'selected' : '' }}>{{ $evento }}</option>
-                                @endforeach
-                            </select>
-                            @if($errors->has('evento_id'))
-                                <p class="help-block">
-                                    {{ $errors->first('evento_id') }}
-                                </p>
-                            @endif
-                        </div>
-                        <div class="form-group {{ $errors->has('grupo_id') ? 'has-error' : '' }}">
-                            <label for="grupo">{{ trans('cruds.registroEvento.fields.grupo') }}*</label>
-                            <select name="grupo_id" id="grupo" class="form-control select2" required>
-                                @foreach($grupos as $id => $grupo)
-                                    <option value="{{ $id }}" {{ (isset($registroEvento) && $registroEvento->grupo ? $registroEvento->grupo->id : old('grupo_id')) == $id ? 'selected' : '' }}>{{ $grupo }}</option>
-                                @endforeach
-                            </select>
-                            @if($errors->has('grupo_id'))
-                                <p class="help-block">
-                                    {{ $errors->first('grupo_id') }}
-                                </p>
-                            @endif
-                        </div>
-                        <div class="form-group {{ $errors->has('participantes_mls') ? 'has-error' : '' }}">
-                            <label for="participantes_ml">{{ trans('cruds.registroEvento.fields.participantes_ml') }}
-                                <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
-                                <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span></label>
-                            <select name="participantes_mls[]" id="participantes_mls" class="form-control select2" multiple="multiple">
-                                @foreach($participantes_mls as $id => $participantes_ml)
-                                    <option value="{{ $id }}" {{ (in_array($id, old('participantes_mls', [])) || isset($registroEvento) && $registroEvento->participantes_mls->contains($id)) ? 'selected' : '' }}>{{ $participantes_ml }}</option>
-                                @endforeach
-                            </select>
-                            @if($errors->has('participantes_mls'))
-                                <p class="help-block">
-                                    {{ $errors->first('participantes_mls') }}
-                                </p>
-                            @endif
-                            <p class="helper-block">
-                                {{ trans('cruds.registroEvento.fields.participantes_ml_helper') }}
-                            </p>
-                        </div>
-                        <div class="form-group {{ $errors->has('comprobante_de_pago') ? 'has-error' : '' }}">
-                            <label for="comprobante_de_pago">{{ trans('cruds.registroEvento.fields.comprobante_de_pago') }}</label>
-                            <div class="needsclick dropzone" id="comprobante_de_pago-dropzone">
-
-                            </div>
-                            @if($errors->has('comprobante_de_pago'))
-                                <p class="help-block">
-                                    {{ $errors->first('comprobante_de_pago') }}
-                                </p>
-                            @endif
-                            <p class="helper-block">
-                                {{ trans('cruds.registroEvento.fields.comprobante_de_pago_helper') }}
-                            </p>
-                        </div>
-                        <div>
-                            <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
-                        </div>
-                    </form>
-
-                </div>
+    <div class="card-body">
+        <form action="{{ route("admin.registro-eventos.update", [$registroEvento->id]) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="form-group {{ $errors->has('evento_id') ? 'has-error' : '' }}">
+                <label for="evento">{{ trans('cruds.registroEvento.fields.evento') }}*</label>
+                <select name="evento_id" id="evento" class="form-control select2" required>
+                    @foreach($eventos as $id => $evento)
+                        <option value="{{ $id }}" {{ (isset($registroEvento) && $registroEvento->evento ? $registroEvento->evento->id : old('evento_id')) == $id ? 'selected' : '' }}>{{ $evento }}</option>
+                    @endforeach
+                </select>
+                @if($errors->has('evento_id'))
+                    <p class="help-block">
+                        {{ $errors->first('evento_id') }}
+                    </p>
+                @endif
             </div>
+            <div class="form-group {{ $errors->has('grupo_id') ? 'has-error' : '' }}">
+                <label for="grupo">{{ trans('cruds.registroEvento.fields.grupo') }}*</label>
+                <select name="grupo_id" id="grupo" class="form-control select2" required>
+                    @foreach($grupos as $id => $grupo)
+                        <option value="{{ $id }}" {{ (isset($registroEvento) && $registroEvento->grupo ? $registroEvento->grupo->id : old('grupo_id')) == $id ? 'selected' : '' }}>{{ $grupo }}</option>
+                    @endforeach
+                </select>
+                @if($errors->has('grupo_id'))
+                    <p class="help-block">
+                        {{ $errors->first('grupo_id') }}
+                    </p>
+                @endif
+            </div>
+            <div class="form-group {{ $errors->has('participantes') ? 'has-error' : '' }}">
+                <label for="participantes">{{ trans('cruds.registroEvento.fields.participantes') }}*
+                    <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
+                    <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span></label>
+                <select name="participantes[]" id="participantes" class="form-control select2" multiple="multiple" required>
+                    @foreach($participantes as $id => $participantes)
+                        <option value="{{ $id }}" {{ (in_array($id, old('participantes', [])) || isset($registroEvento) && $registroEvento->participantes->contains($id)) ? 'selected' : '' }}>{{ $participantes }}</option>
+                    @endforeach
+                </select>
+                @if($errors->has('participantes'))
+                    <p class="help-block">
+                        {{ $errors->first('participantes') }}
+                    </p>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.registroEvento.fields.participantes_helper') }}
+                </p>
+            </div>
+            <div class="form-group {{ $errors->has('comprobante_de_pago') ? 'has-error' : '' }}">
+                <label for="comprobante_de_pago">{{ trans('cruds.registroEvento.fields.comprobante_de_pago') }}</label>
+                <div class="needsclick dropzone" id="comprobante_de_pago-dropzone">
 
-        </div>
+                </div>
+                @if($errors->has('comprobante_de_pago'))
+                    <p class="help-block">
+                        {{ $errors->first('comprobante_de_pago') }}
+                    </p>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.registroEvento.fields.comprobante_de_pago_helper') }}
+                </p>
+            </div>
+            <div>
+                <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
+            </div>
+        </form>
+
+
     </div>
 </div>
 @endsection

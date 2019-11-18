@@ -4,23 +4,23 @@ namespace App\Http\Controllers\Admin;
 
 use App\ControlDeCheque;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\CsvImportTrait;
 use App\Http\Controllers\Traits\MediaUploadingTrait;
 use App\Http\Requests\MassDestroyControlDeChequeRequest;
 use App\Http\Requests\StoreControlDeChequeRequest;
 use App\Http\Requests\UpdateControlDeChequeRequest;
+use Gate;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class ControlDeChequesController extends Controller
 {
-    use MediaUploadingTrait, CsvImportTrait;
+    use MediaUploadingTrait;
 
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = ControlDeCheque::query()->select('*');
-
+            $query = ControlDeCheque::query()->select(sprintf('%s.*', (new ControlDeCheque)->table));
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -39,6 +39,13 @@ class ControlDeChequesController extends Controller
                     'crudRoutePart',
                     'row'
                 ));
+            });
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : "";
+            });
+            $table->editColumn('cuenta', function ($row) {
+                return $row->cuenta ? $row->cuenta : "";
             });
             $table->editColumn('numero_de_cheque', function ($row) {
                 return $row->numero_de_cheque ? $row->numero_de_cheque : "";
@@ -67,15 +74,13 @@ class ControlDeChequesController extends Controller
 
     public function create()
     {
-        abort_unless(\Gate::allows('control_de_cheque_create'), 403);
+        abort_if(Gate::denies('control_de_cheque_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.controlDeCheques.create');
     }
 
     public function store(StoreControlDeChequeRequest $request)
     {
-        abort_unless(\Gate::allows('control_de_cheque_create'), 403);
-
         $controlDeCheque = ControlDeCheque::create($request->all());
 
         if ($request->input('imagen_de_poliza', false)) {
@@ -87,17 +92,13 @@ class ControlDeChequesController extends Controller
 
     public function edit(ControlDeCheque $controlDeCheque)
     {
-        abort_unless(\Gate::allows('control_de_cheque_edit'), 403);
-
-        $controlDeCheque->load('team');
+        abort_if(Gate::denies('control_de_cheque_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.controlDeCheques.edit', compact('controlDeCheque'));
     }
 
     public function update(UpdateControlDeChequeRequest $request, ControlDeCheque $controlDeCheque)
     {
-        abort_unless(\Gate::allows('control_de_cheque_edit'), 403);
-
         $controlDeCheque->update($request->all());
 
         if ($request->input('imagen_de_poliza', false)) {
@@ -113,16 +114,14 @@ class ControlDeChequesController extends Controller
 
     public function show(ControlDeCheque $controlDeCheque)
     {
-        abort_unless(\Gate::allows('control_de_cheque_show'), 403);
-
-        $controlDeCheque->load('team');
+        abort_if(Gate::denies('control_de_cheque_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.controlDeCheques.show', compact('controlDeCheque'));
     }
 
     public function destroy(ControlDeCheque $controlDeCheque)
     {
-        abort_unless(\Gate::allows('control_de_cheque_delete'), 403);
+        abort_if(Gate::denies('control_de_cheque_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $controlDeCheque->delete();
 
@@ -133,6 +132,6 @@ class ControlDeChequesController extends Controller
     {
         ControlDeCheque::whereIn('id', request('ids'))->delete();
 
-        return response(null, 204);
+        return response(null, Response::HTTP_NO_CONTENT);
     }
 }

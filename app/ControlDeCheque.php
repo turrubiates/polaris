@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Traits\MultiTenantModelTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,9 +11,13 @@ use Spatie\MediaLibrary\Models\Media;
 
 class ControlDeCheque extends Model implements HasMedia
 {
-    use SoftDeletes, MultiTenantModelTrait, HasMediaTrait;
+    use SoftDeletes, HasMediaTrait;
 
     public $table = 'control_de_cheques';
+
+    protected $appends = [
+        'imagen_de_poliza',
+    ];
 
     protected $dates = [
         'created_at',
@@ -26,7 +29,7 @@ class ControlDeCheque extends Model implements HasMedia
     ];
 
     protected $fillable = [
-        'team_id',
+        'cuenta',
         'cantidad',
         'created_at',
         'updated_at',
@@ -43,6 +46,16 @@ class ControlDeCheque extends Model implements HasMedia
     public function registerMediaConversions(Media $media = null)
     {
         $this->addMediaConversion('thumb')->width(50)->height(50);
+    }
+
+    public function movimientosBancarios()
+    {
+        return $this->hasMany(MovimientosBancario::class, 'cheque_id', 'id');
+    }
+
+    public function controlDeGastos()
+    {
+        return $this->hasMany(ControlDeGasto::class, 'cheque_id', 'id');
     }
 
     public function getFechaDeExpedicionAttribute($value)
@@ -75,13 +88,8 @@ class ControlDeCheque extends Model implements HasMedia
         $this->attributes['fecha_de_cobro'] = $value ? Carbon::createFromFormat(config('panel.date_format'), $value)->format('Y-m-d') : null;
     }
 
-    public function getimagenDePolizaAttribute()
+    public function getImagenDePolizaAttribute()
     {
         return $this->getMedia('imagen_de_poliza')->last();
-    }
-
-    public function team()
-    {
-        return $this->belongsTo(Team::class, 'team_id');
     }
 }

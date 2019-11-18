@@ -19,10 +19,22 @@ class Role extends Model
 
     protected $fillable = [
         'title',
+        'nivel',
         'created_at',
         'updated_at',
         'deleted_at',
     ];
+
+    const NIVEL_SELECT = [
+        'Nacional'  => 'Nacional',
+        'Provincia' => 'Provincia',
+        'Grupo'     => 'Grupo',
+    ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
 
     public function permissions()
     {

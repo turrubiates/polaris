@@ -19,15 +19,20 @@ class Grupo extends Model
 
     protected $fillable = [
         'grupo',
+        'email',
         'created_at',
         'updated_at',
         'deleted_at',
-        'provincia_id',
         'nombre_de_grupo',
     ];
 
-    public function provincia()
+    public function registroEventos()
     {
-        return $this->belongsTo(Provincium::class, 'provincia_id');
+        return $this->hasMany(RegistroEvento::class, 'grupo_id', 'id');
+    }
+
+    public function actasCogs()
+    {
+        return $this->hasMany(ActasCog::class, 'grupo_id', 'id');
     }
 }

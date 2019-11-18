@@ -8,7 +8,9 @@ use App\Http\Requests\StoreListaDeEventoRequest;
 use App\Http\Requests\UpdateListaDeEventoRequest;
 use App\ListaDeEvento;
 use App\User;
+use Gate;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class ListaDeEventosController extends Controller
@@ -16,8 +18,7 @@ class ListaDeEventosController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = ListaDeEvento::query()->select('*');
-            $query->with(['responsable_de_evento']);
+            $query = ListaDeEvento::with(['responsable_de_evento'])->select(sprintf('%s.*', (new ListaDeEvento)->table));
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -37,28 +38,45 @@ class ListaDeEventosController extends Controller
                     'row'
                 ));
             });
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : "";
+            });
             $table->editColumn('nombre_de_evento', function ($row) {
                 return $row->nombre_de_evento ? $row->nombre_de_evento : "";
             });
-            $table->editColumn('nivel', function ($row) {
-                return $row->nivel ? ListaDeEvento::NIVEL_SELECT[$row->nivel] : '';
+            $table->addColumn('responsable_de_evento_cum', function ($row) {
+                return $row->responsable_de_evento ? $row->responsable_de_evento->cum : '';
+            });
+
+            $table->editColumn('responsable_de_evento.name', function ($row) {
+                return $row->responsable_de_evento ? (is_string($row->responsable_de_evento) ? $row->responsable_de_evento : $row->responsable_de_evento->name) : '';
             });
             $table->editColumn('participantes', function ($row) {
-                return $row->participantes ? ListaDeEvento::PARTICIPANTES_SELECT[$row->participantes] : '';
+                return $row->participantes ? ListaDeEvento::PARTICIPANTES_RADIO[$row->participantes] : '';
+            });
+            $table->editColumn('participantes_ml', function ($row) {
+                return '<input type="checkbox" disabled ' . ($row->participantes_ml ? 'checked' : null) . '>';
+            });
+            $table->editColumn('participantes_ts', function ($row) {
+                return '<input type="checkbox" disabled ' . ($row->participantes_ts ? 'checked' : null) . '>';
+            });
+            $table->editColumn('participantes_cc', function ($row) {
+                return '<input type="checkbox" disabled ' . ($row->participantes_cc ? 'checked' : null) . '>';
+            });
+            $table->editColumn('participantes_cr', function ($row) {
+                return '<input type="checkbox" disabled ' . ($row->participantes_cr ? 'checked' : null) . '>';
+            });
+            $table->editColumn('participantes_sd', function ($row) {
+                return '<input type="checkbox" disabled ' . ($row->participantes_sd ? 'checked' : null) . '>';
+            });
+            $table->editColumn('participantes_ai', function ($row) {
+                return '<input type="checkbox" disabled ' . ($row->participantes_ai ? 'checked' : null) . '>';
             });
             $table->editColumn('lugar_de_evento', function ($row) {
                 return $row->lugar_de_evento ? $row->lugar_de_evento : "";
             });
 
-            $table->editColumn('user.responsable_de_evento', function ($row) {
-                return $row->responsable_de_evento_id ? (is_string($row->responsable_de_evento) ? $row->responsable_de_evento : $row->responsable_de_evento->cum) : '';
-            });
-            $table->editColumn('responsable_de_evento.nombre', function ($row) {
-                return $row->responsable_de_evento_id ? (is_string($row->responsable_de_evento) ? $row->responsable_de_evento : $row->responsable_de_evento->nombre) : '';
-            });
-            $table->editColumn('responsable_de_evento.apellido_paterno', function ($row) {
-                return $row->responsable_de_evento_id ? (is_string($row->responsable_de_evento) ? $row->responsable_de_evento : $row->responsable_de_evento->apellido_paterno) : '';
-            });
             $table->editColumn('costo', function ($row) {
                 return $row->costo ? ListaDeEvento::COSTO_RADIO[$row->costo] : '';
             });
@@ -66,7 +84,11 @@ class ListaDeEventosController extends Controller
             $table->editColumn('costo_participantes_fecha_1', function ($row) {
                 return $row->costo_participantes_fecha_1 ? $row->costo_participantes_fecha_1 : "";
             });
-            $table->rawColumns(['actions', 'placeholder', 'responsable_de_evento']);
+            $table->editColumn('nivel', function ($row) {
+                return $row->nivel ? ListaDeEvento::NIVEL_SELECT[$row->nivel] : '';
+            });
+
+            $table->rawColumns(['actions', 'placeholder', 'responsable_de_evento', 'participantes_ml', 'participantes_ts', 'participantes_cc', 'participantes_cr', 'participantes_sd', 'participantes_ai']);
 
             return $table->make(true);
         }
@@ -76,7 +98,7 @@ class ListaDeEventosController extends Controller
 
     public function create()
     {
-        abort_unless(\Gate::allows('lista_de_evento_create'), 403);
+        abort_if(Gate::denies('lista_de_evento_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $responsable_de_eventos = User::all()->pluck('cum', 'id')->prepend(trans('global.pleaseSelect'), '');
 
@@ -85,8 +107,6 @@ class ListaDeEventosController extends Controller
 
     public function store(StoreListaDeEventoRequest $request)
     {
-        abort_unless(\Gate::allows('lista_de_evento_create'), 403);
-
         $listaDeEvento = ListaDeEvento::create($request->all());
 
         return redirect()->route('admin.lista-de-eventos.index');
@@ -94,19 +114,17 @@ class ListaDeEventosController extends Controller
 
     public function edit(ListaDeEvento $listaDeEvento)
     {
-        abort_unless(\Gate::allows('lista_de_evento_edit'), 403);
+        abort_if(Gate::denies('lista_de_evento_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $responsable_de_eventos = User::all()->pluck('cum', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $listaDeEvento->load('responsable_de_evento', 'team');
+        $listaDeEvento->load('responsable_de_evento');
 
         return view('admin.listaDeEventos.edit', compact('responsable_de_eventos', 'listaDeEvento'));
     }
 
     public function update(UpdateListaDeEventoRequest $request, ListaDeEvento $listaDeEvento)
     {
-        abort_unless(\Gate::allows('lista_de_evento_edit'), 403);
-
         $listaDeEvento->update($request->all());
 
         return redirect()->route('admin.lista-de-eventos.index');
@@ -114,16 +132,16 @@ class ListaDeEventosController extends Controller
 
     public function show(ListaDeEvento $listaDeEvento)
     {
-        abort_unless(\Gate::allows('lista_de_evento_show'), 403);
+        abort_if(Gate::denies('lista_de_evento_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $listaDeEvento->load('responsable_de_evento', 'team');
+        $listaDeEvento->load('responsable_de_evento');
 
         return view('admin.listaDeEventos.show', compact('listaDeEvento'));
     }
 
     public function destroy(ListaDeEvento $listaDeEvento)
     {
-        abort_unless(\Gate::allows('lista_de_evento_delete'), 403);
+        abort_if(Gate::denies('lista_de_evento_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $listaDeEvento->delete();
 
@@ -134,6 +152,6 @@ class ListaDeEventosController extends Controller
     {
         ListaDeEvento::whereIn('id', request('ids'))->delete();
 
-        return response(null, 204);
+        return response(null, Response::HTTP_NO_CONTENT);
     }
 }

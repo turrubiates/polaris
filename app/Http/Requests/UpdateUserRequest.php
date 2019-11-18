@@ -3,13 +3,17 @@
 namespace App\Http\Requests;
 
 use App\User;
+use Gate;
 use Illuminate\Foundation\Http\FormRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class UpdateUserRequest extends FormRequest
 {
     public function authorize()
     {
-        return \Gate::allows('user_edit');
+        abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        return true;
     }
 
     public function rules()
@@ -22,6 +26,16 @@ class UpdateUserRequest extends FormRequest
                 'required',
                 'array',
             ],
+            'cum'           => [
+                'min:10',
+                'max:10',
+                'required',
+                'unique:users,cum,' . request()->route('user')->id,
+            ],
+            'curp'          => [
+                'min:18',
+                'max:18',
+            ],
             'nacimiento'    => [
                 'date_format:' . config('panel.date_format'),
                 'nullable',
@@ -33,9 +47,6 @@ class UpdateUserRequest extends FormRequest
             'miembro_desde' => [
                 'date_format:' . config('panel.date_format'),
                 'nullable',
-            ],
-            'email'         => [
-                'required',
             ],
         ];
     }

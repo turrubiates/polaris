@@ -3,13 +3,17 @@
 namespace App\Http\Requests;
 
 use App\ListaDeEvento;
+use Gate;
 use Illuminate\Foundation\Http\FormRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class UpdateListaDeEventoRequest extends FormRequest
 {
     public function authorize()
     {
-        return \Gate::allows('lista_de_evento_edit');
+        abort_if(Gate::denies('lista_de_evento_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        return true;
     }
 
     public function rules()
@@ -18,8 +22,9 @@ class UpdateListaDeEventoRequest extends FormRequest
             'nombre_de_evento'         => [
                 'required',
             ],
-            'nivel'                    => [
+            'responsable_de_evento_id' => [
                 'required',
+                'integer',
             ],
             'participantes'            => [
                 'required',
@@ -32,19 +37,21 @@ class UpdateListaDeEventoRequest extends FormRequest
                 'required',
                 'date_format:' . config('panel.date_format') . ' ' . config('panel.time_format'),
             ],
-            'responsable_de_evento_id' => [
-                'required',
-                'integer',
-            ],
             'costo'                    => [
                 'required',
-            ],
-            'referencia_de_pago'       => [
-                'digits_between:0,10',
             ],
             'fecha_de_pago_1'          => [
                 'date_format:' . config('panel.date_format'),
                 'nullable',
+            ],
+            'referencia_de_pago'       => [
+                'nullable',
+                'integer',
+                'min:-2147483648',
+                'max:2147483647',
+            ],
+            'nivel'                    => [
+                'required',
             ],
             'fecha_de_pago_2'          => [
                 'date_format:' . config('panel.date_format'),

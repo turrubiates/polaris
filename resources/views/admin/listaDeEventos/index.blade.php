@@ -1,77 +1,86 @@
 @extends('layouts.admin')
 @section('content')
-<div class="content">
-    @can('lista_de_evento_create')
-        <div style="margin-bottom: 10px;" class="row">
-            <div class="col-lg-12">
-                <a class="btn btn-success" href="{{ route("admin.lista-de-eventos.create") }}">
-                    {{ trans('global.add') }} {{ trans('cruds.listaDeEvento.title_singular') }}
-                </a>
-            </div>
-        </div>
-    @endcan
-    <div class="row">
+@can('lista_de_evento_create')
+    <div style="margin-bottom: 10px;" class="row">
         <div class="col-lg-12">
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    {{ trans('cruds.listaDeEvento.title_singular') }} {{ trans('global.list') }}
-                </div>
-                <div class="panel-body">
-
-                    <table class=" table table-bordered table-striped table-hover ajaxTable datatable">
-                        <thead>
-                            <tr>
-                                <th width="10">
-
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.nombre_de_evento') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.nivel') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.participantes') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.lugar_de_evento') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.inicio_de_evento') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.fin_de_evento') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.responsable_de_evento') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.user.fields.nombre') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.user.fields.apellido_paterno') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.costo') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.fecha_de_pago_1') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.listaDeEvento.fields.costo_participantes_fecha_1') }}
-                                </th>
-                                <th>
-                                    &nbsp;
-                                </th>
-                            </tr>
-                        </thead>
-                    </table>
-
-                </div>
-            </div>
-
+            <a class="btn btn-success" href="{{ route("admin.lista-de-eventos.create") }}">
+                {{ trans('global.add') }} {{ trans('cruds.listaDeEvento.title_singular') }}
+            </a>
         </div>
+    </div>
+@endcan
+<div class="card">
+    <div class="card-header">
+        {{ trans('cruds.listaDeEvento.title_singular') }} {{ trans('global.list') }}
+    </div>
+
+    <div class="card-body">
+        <table class=" table table-bordered table-striped table-hover ajaxTable datatable datatable-ListaDeEvento">
+            <thead>
+                <tr>
+                    <th width="10">
+
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.id') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.nombre_de_evento') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.responsable_de_evento') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.user.fields.name') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.participantes') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.participantes_ml') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.participantes_ts') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.participantes_cc') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.participantes_cr') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.participantes_sd') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.participantes_ai') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.lugar_de_evento') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.inicio_de_evento') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.fin_de_evento') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.costo') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.fecha_de_pago_1') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.costo_participantes_fecha_1') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.listaDeEvento.fields.nivel') }}
+                    </th>
+                    <th>
+                        &nbsp;
+                    </th>
+                </tr>
+            </thead>
+        </table>
     </div>
 </div>
 @endsection
@@ -79,6 +88,8 @@
 @parent
 <script>
     $(function () {
+  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
+@can('lista_de_evento_delete')
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
   let deleteButton = {
     text: deleteButtonTrans,
@@ -105,9 +116,6 @@
       }
     }
   }
-
-  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('lista_de_evento_delete')
   dtButtons.push(deleteButton)
 @endcan
 
@@ -120,26 +128,34 @@
     ajax: "{{ route('admin.lista-de-eventos.index') }}",
     columns: [
       { data: 'placeholder', name: 'placeholder' },
-      { data: 'nombre_de_evento', name: 'nombre_de_evento' },
-{ data: 'nivel', name: 'nivel' },
+{ data: 'id', name: 'id' },
+{ data: 'nombre_de_evento', name: 'nombre_de_evento' },
+{ data: 'responsable_de_evento_cum', name: 'responsable_de_evento.cum' },
+{ data: 'responsable_de_evento.name', name: 'responsable_de_evento.name' },
 { data: 'participantes', name: 'participantes' },
+{ data: 'participantes_ml', name: 'participantes_ml' },
+{ data: 'participantes_ts', name: 'participantes_ts' },
+{ data: 'participantes_cc', name: 'participantes_cc' },
+{ data: 'participantes_cr', name: 'participantes_cr' },
+{ data: 'participantes_sd', name: 'participantes_sd' },
+{ data: 'participantes_ai', name: 'participantes_ai' },
 { data: 'lugar_de_evento', name: 'lugar_de_evento' },
 { data: 'inicio_de_evento', name: 'inicio_de_evento' },
 { data: 'fin_de_evento', name: 'fin_de_evento' },
-{ data: 'user.responsable_de_evento', name: 'responsable_de_evento.cum' },
-{ data: 'responsable_de_evento.nombre', name: 'responsable_de_evento.nombre' },
-{ data: 'responsable_de_evento.apellido_paterno', name: 'responsable_de_evento.apellido_paterno' },
 { data: 'costo', name: 'costo' },
 { data: 'fecha_de_pago_1', name: 'fecha_de_pago_1' },
 { data: 'costo_participantes_fecha_1', name: 'costo_participantes_fecha_1' },
+{ data: 'nivel', name: 'nivel' },
 { data: 'actions', name: '{{ trans('global.actions') }}' }
     ],
-    order: [[ 5, 'desc' ]],
+    order: [[ 13, 'asc' ]],
     pageLength: 25,
   };
-
-  $('.datatable').DataTable(dtOverrideGlobals);
-
+  $('.datatable-ListaDeEvento').DataTable(dtOverrideGlobals);
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+        $($.fn.dataTable.tables(true)).DataTable()
+            .columns.adjust();
+    });
 });
 
 </script>

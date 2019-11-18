@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\CsvImportTrait;
-use App\Http\Requests\MassDestroyUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Role;
 use App\Team;
 use App\User;
+use Gate;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class UsersController extends Controller
@@ -20,8 +21,7 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = User::query()->select('*');
-            $query->with(['roles']);
+            $query = User::with(['team', 'roles'])->select(sprintf('%s.*', (new User)->table));
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -41,6 +41,10 @@ class UsersController extends Controller
                     'row'
                 ));
             });
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : "";
+            });
             $table->editColumn('roles', function ($row) {
                 $labels = [];
 
@@ -56,8 +60,8 @@ class UsersController extends Controller
             $table->editColumn('curp', function ($row) {
                 return $row->curp ? $row->curp : "";
             });
-            $table->editColumn('nombre', function ($row) {
-                return $row->nombre ? $row->nombre : "";
+            $table->editColumn('name', function ($row) {
+                return $row->name ? $row->name : "";
             });
             $table->editColumn('apellido_paterno', function ($row) {
                 return $row->apellido_paterno ? $row->apellido_paterno : "";
@@ -65,13 +69,14 @@ class UsersController extends Controller
             $table->editColumn('apellido_materno', function ($row) {
                 return $row->apellido_materno ? $row->apellido_materno : "";
             });
+
             $table->editColumn('sexo', function ($row) {
                 return $row->sexo ? $row->sexo : "";
             });
-
             $table->editColumn('ocupacion', function ($row) {
                 return $row->ocupacion ? $row->ocupacion : "";
             });
+
             $table->editColumn('email', function ($row) {
                 return $row->email ? $row->email : "";
             });
@@ -93,6 +98,9 @@ class UsersController extends Controller
             $table->editColumn('estado', function ($row) {
                 return $row->estado ? $row->estado : "";
             });
+            $table->editColumn('religion', function ($row) {
+                return $row->religion ? $row->religion : "";
+            });
             $table->editColumn('provincia', function ($row) {
                 return $row->provincia ? $row->provincia : "";
             });
@@ -108,9 +116,10 @@ class UsersController extends Controller
             $table->editColumn('seccion', function ($row) {
                 return $row->seccion ? $row->seccion : "";
             });
-            $table->editColumn('religion', function ($row) {
-                return $row->religion ? $row->religion : "";
+            $table->editColumn('cargo', function ($row) {
+                return $row->cargo ? $row->cargo : "";
             });
+
             $table->rawColumns(['actions', 'placeholder', 'roles']);
 
             return $table->make(true);
@@ -121,19 +130,17 @@ class UsersController extends Controller
 
     public function create()
     {
-        abort_unless(\Gate::allows('user_create'), 403);
-
-        $roles = Role::all()->pluck('title', 'id');
+        abort_if(Gate::denies('user_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $teams = Team::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        return view('admin.users.create', compact('roles', 'teams'));
+        $roles = Role::all()->pluck('title', 'id');
+
+        return view('admin.users.create', compact('teams', 'roles'));
     }
 
     public function store(StoreUserRequest $request)
     {
-        abort_unless(\Gate::allows('user_create'), 403);
-
         $user = User::create($request->all());
         $user->roles()->sync($request->input('roles', []));
 
@@ -142,21 +149,19 @@ class UsersController extends Controller
 
     public function edit(User $user)
     {
-        abort_unless(\Gate::allows('user_edit'), 403);
-
-        $roles = Role::all()->pluck('title', 'id');
+        abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $teams = Team::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $user->load('roles', 'team');
+        $roles = Role::all()->pluck('title', 'id');
 
-        return view('admin.users.edit', compact('roles', 'teams', 'user'));
+        $user->load('team', 'roles');
+
+        return view('admin.users.edit', compact('teams', 'roles', 'user'));
     }
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        abort_unless(\Gate::allows('user_edit'), 403);
-
         $user->update($request->all());
         $user->roles()->sync($request->input('roles', []));
 
@@ -165,26 +170,10 @@ class UsersController extends Controller
 
     public function show(User $user)
     {
-        abort_unless(\Gate::allows('user_show'), 403);
+        abort_if(Gate::denies('user_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $user->load('roles', 'team');
+        $user->load('team', 'roles');
 
         return view('admin.users.show', compact('user'));
-    }
-
-    public function destroy(User $user)
-    {
-        abort_unless(\Gate::allows('user_delete'), 403);
-
-        $user->delete();
-
-        return back();
-    }
-
-    public function massDestroy(MassDestroyUserRequest $request)
-    {
-        User::whereIn('id', request('ids'))->delete();
-
-        return response(null, 204);
     }
 }

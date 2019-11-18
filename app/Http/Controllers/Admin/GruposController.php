@@ -7,8 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyGrupoRequest;
 use App\Http\Requests\StoreGrupoRequest;
 use App\Http\Requests\UpdateGrupoRequest;
-use App\Provincium;
+use Gate;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class GruposController extends Controller
@@ -16,8 +17,7 @@ class GruposController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Grupo::query()->select('*');
-            $query->with(['provincia']);
+            $query = Grupo::query()->select(sprintf('%s.*', (new Grupo)->table));
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -37,8 +37,9 @@ class GruposController extends Controller
                     'row'
                 ));
             });
-            $table->editColumn('provincium.provincia', function ($row) {
-                return $row->provincia_id ? (is_string($row->provincia) ? $row->provincia : $row->provincia->nombre) : '';
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : "";
             });
             $table->editColumn('grupo', function ($row) {
                 return $row->grupo ? $row->grupo : "";
@@ -46,7 +47,11 @@ class GruposController extends Controller
             $table->editColumn('nombre_de_grupo', function ($row) {
                 return $row->nombre_de_grupo ? $row->nombre_de_grupo : "";
             });
-            $table->rawColumns(['actions', 'placeholder', 'provincia']);
+            $table->editColumn('email', function ($row) {
+                return $row->email ? $row->email : "";
+            });
+
+            $table->rawColumns(['actions', 'placeholder']);
 
             return $table->make(true);
         }
@@ -56,17 +61,13 @@ class GruposController extends Controller
 
     public function create()
     {
-        abort_unless(\Gate::allows('grupo_create'), 403);
+        abort_if(Gate::denies('grupo_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $provincias = Provincium::all()->pluck('nombre', 'id')->prepend(trans('global.pleaseSelect'), '');
-
-        return view('admin.grupos.create', compact('provincias'));
+        return view('admin.grupos.create');
     }
 
     public function store(StoreGrupoRequest $request)
     {
-        abort_unless(\Gate::allows('grupo_create'), 403);
-
         $grupo = Grupo::create($request->all());
 
         return redirect()->route('admin.grupos.index');
@@ -74,19 +75,13 @@ class GruposController extends Controller
 
     public function edit(Grupo $grupo)
     {
-        abort_unless(\Gate::allows('grupo_edit'), 403);
+        abort_if(Gate::denies('grupo_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $provincias = Provincium::all()->pluck('nombre', 'id')->prepend(trans('global.pleaseSelect'), '');
-
-        $grupo->load('provincia');
-
-        return view('admin.grupos.edit', compact('provincias', 'grupo'));
+        return view('admin.grupos.edit', compact('grupo'));
     }
 
     public function update(UpdateGrupoRequest $request, Grupo $grupo)
     {
-        abort_unless(\Gate::allows('grupo_edit'), 403);
-
         $grupo->update($request->all());
 
         return redirect()->route('admin.grupos.index');
@@ -94,16 +89,14 @@ class GruposController extends Controller
 
     public function show(Grupo $grupo)
     {
-        abort_unless(\Gate::allows('grupo_show'), 403);
-
-        $grupo->load('provincia');
+        abort_if(Gate::denies('grupo_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.grupos.show', compact('grupo'));
     }
 
     public function destroy(Grupo $grupo)
     {
-        abort_unless(\Gate::allows('grupo_delete'), 403);
+        abort_if(Gate::denies('grupo_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $grupo->delete();
 
@@ -114,6 +107,6 @@ class GruposController extends Controller
     {
         Grupo::whereIn('id', request('ids'))->delete();
 
-        return response(null, 204);
+        return response(null, Response::HTTP_NO_CONTENT);
     }
 }

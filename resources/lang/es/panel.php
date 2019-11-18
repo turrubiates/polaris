@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'site_title' => 'POLARIS',
+    'site_title' => 'Polaris Laravel 5.8',
 ];

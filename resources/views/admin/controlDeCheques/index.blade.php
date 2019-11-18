@@ -1,69 +1,62 @@
 @extends('layouts.admin')
 @section('content')
-<div class="content">
-    @can('control_de_cheque_create')
-        <div style="margin-bottom: 10px;" class="row">
-            <div class="col-lg-12">
-                <a class="btn btn-success" href="{{ route("admin.control-de-cheques.create") }}">
-                    {{ trans('global.add') }} {{ trans('cruds.controlDeCheque.title_singular') }}
-                </a>
-                <button class="btn btn-warning" data-toggle="modal" data-target="#csvImportModal">
-                    {{ trans('global.app_csvImport') }}
-                </button>
-                @include('csvImport.modal', ['model' => 'ControlDeCheque', 'route' => 'admin.control-de-cheques.parseCsvImport'])
-            </div>
-        </div>
-    @endcan
-    <div class="row">
+@can('control_de_cheque_create')
+    <div style="margin-bottom: 10px;" class="row">
         <div class="col-lg-12">
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    {{ trans('cruds.controlDeCheque.title_singular') }} {{ trans('global.list') }}
-                </div>
-                <div class="panel-body">
-
-                    <table class=" table table-bordered table-striped table-hover ajaxTable datatable">
-                        <thead>
-                            <tr>
-                                <th width="10">
-
-                                </th>
-                                <th>
-                                    {{ trans('cruds.controlDeCheque.fields.numero_de_cheque') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.controlDeCheque.fields.nombre_a_quien_se_expide') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.controlDeCheque.fields.cantidad') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.controlDeCheque.fields.descripcion') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.controlDeCheque.fields.fecha_de_expedicion') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.controlDeCheque.fields.fecha_de_entrega') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.controlDeCheque.fields.nombre_a_quien_se_entrego') }}
-                                </th>
-                                <th>
-                                    {{ trans('cruds.controlDeCheque.fields.fecha_de_cobro') }}
-                                </th>
-                                <th>
-                                    &nbsp;
-                                </th>
-                            </tr>
-                        </thead>
-                    </table>
-
-                </div>
-            </div>
-
+            <a class="btn btn-success" href="{{ route("admin.control-de-cheques.create") }}">
+                {{ trans('global.add') }} {{ trans('cruds.controlDeCheque.title_singular') }}
+            </a>
         </div>
+    </div>
+@endcan
+<div class="card">
+    <div class="card-header">
+        {{ trans('cruds.controlDeCheque.title_singular') }} {{ trans('global.list') }}
+    </div>
+
+    <div class="card-body">
+        <table class=" table table-bordered table-striped table-hover ajaxTable datatable datatable-ControlDeCheque">
+            <thead>
+                <tr>
+                    <th width="10">
+
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.id') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.cuenta') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.numero_de_cheque') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.nombre_a_quien_se_expide') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.cantidad') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.descripcion') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.fecha_de_expedicion') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.fecha_de_entrega') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.nombre_a_quien_se_entrego') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.controlDeCheque.fields.fecha_de_cobro') }}
+                    </th>
+                    <th>
+                        &nbsp;
+                    </th>
+                </tr>
+            </thead>
+        </table>
     </div>
 </div>
 @endsection
@@ -71,6 +64,8 @@
 @parent
 <script>
     $(function () {
+  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
+@can('control_de_cheque_delete')
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
   let deleteButton = {
     text: deleteButtonTrans,
@@ -97,9 +92,6 @@
       }
     }
   }
-
-  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('control_de_cheque_delete')
   dtButtons.push(deleteButton)
 @endcan
 
@@ -112,7 +104,9 @@
     ajax: "{{ route('admin.control-de-cheques.index') }}",
     columns: [
       { data: 'placeholder', name: 'placeholder' },
-      { data: 'numero_de_cheque', name: 'numero_de_cheque' },
+{ data: 'id', name: 'id' },
+{ data: 'cuenta', name: 'cuenta' },
+{ data: 'numero_de_cheque', name: 'numero_de_cheque' },
 { data: 'nombre_a_quien_se_expide', name: 'nombre_a_quien_se_expide' },
 { data: 'cantidad', name: 'cantidad' },
 { data: 'descripcion', name: 'descripcion' },
@@ -122,12 +116,14 @@
 { data: 'fecha_de_cobro', name: 'fecha_de_cobro' },
 { data: 'actions', name: '{{ trans('global.actions') }}' }
     ],
-    order: [[ 1, 'desc' ]],
-    pageLength: 100,
+    order: [[ 3, 'desc' ]],
+    pageLength: 25,
   };
-
-  $('.datatable').DataTable(dtOverrideGlobals);
-
+  $('.datatable-ControlDeCheque').DataTable(dtOverrideGlobals);
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+        $($.fn.dataTable.tables(true)).DataTable()
+            .columns.adjust();
+    });
 });
 
 </script>

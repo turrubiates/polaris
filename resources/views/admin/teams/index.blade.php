@@ -1,44 +1,38 @@
 @extends('layouts.admin')
 @section('content')
-<div class="content">
-    @can('team_create')
-        <div style="margin-bottom: 10px;" class="row">
-            <div class="col-lg-12">
-                <a class="btn btn-success" href="{{ route("admin.teams.create") }}">
-                    {{ trans('global.add') }} {{ trans('cruds.team.title_singular') }}
-                </a>
-            </div>
-        </div>
-    @endcan
-    <div class="row">
+@can('team_create')
+    <div style="margin-bottom: 10px;" class="row">
         <div class="col-lg-12">
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    {{ trans('cruds.team.title_singular') }} {{ trans('global.list') }}
-                </div>
-                <div class="panel-body">
-
-                    <table class=" table table-bordered table-striped table-hover ajaxTable datatable">
-                        <thead>
-                            <tr>
-                                <th width="10">
-
-                                </th>
-                                <th>
-                                    {{ trans('cruds.team.fields.name') }}
-                                </th>
-                                <th>
-                                    &nbsp;
-                                </th>
-                            </tr>
-                        </thead>
-                    </table>
-
-                </div>
-            </div>
-
+            <a class="btn btn-success" href="{{ route("admin.teams.create") }}">
+                {{ trans('global.add') }} {{ trans('cruds.team.title_singular') }}
+            </a>
         </div>
+    </div>
+@endcan
+<div class="card">
+    <div class="card-header">
+        {{ trans('cruds.team.title_singular') }} {{ trans('global.list') }}
+    </div>
+
+    <div class="card-body">
+        <table class=" table table-bordered table-striped table-hover ajaxTable datatable datatable-Team">
+            <thead>
+                <tr>
+                    <th width="10">
+
+                    </th>
+                    <th>
+                        {{ trans('cruds.team.fields.id') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.team.fields.name') }}
+                    </th>
+                    <th>
+                        &nbsp;
+                    </th>
+                </tr>
+            </thead>
+        </table>
     </div>
 </div>
 @endsection
@@ -46,6 +40,8 @@
 @parent
 <script>
     $(function () {
+  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
+@can('team_delete')
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
   let deleteButton = {
     text: deleteButtonTrans,
@@ -72,9 +68,6 @@
       }
     }
   }
-
-  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('team_delete')
   dtButtons.push(deleteButton)
 @endcan
 
@@ -87,15 +80,18 @@
     ajax: "{{ route('admin.teams.index') }}",
     columns: [
       { data: 'placeholder', name: 'placeholder' },
-      { data: 'name', name: 'name' },
+{ data: 'id', name: 'id' },
+{ data: 'name', name: 'name' },
 { data: 'actions', name: '{{ trans('global.actions') }}' }
     ],
-    order: [[ 1, 'desc' ]],
-    pageLength: 100,
+    order: [[ 2, 'asc' ]],
+    pageLength: 25,
   };
-
-  $('.datatable').DataTable(dtOverrideGlobals);
-
+  $('.datatable-Team').DataTable(dtOverrideGlobals);
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+        $($.fn.dataTable.tables(true)).DataTable()
+            .columns.adjust();
+    });
 });
 
 </script>

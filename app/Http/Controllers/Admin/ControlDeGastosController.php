@@ -5,24 +5,23 @@ namespace App\Http\Controllers\Admin;
 use App\ControlDeCheque;
 use App\ControlDeGasto;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\CsvImportTrait;
 use App\Http\Controllers\Traits\MediaUploadingTrait;
 use App\Http\Requests\MassDestroyControlDeGastoRequest;
 use App\Http\Requests\StoreControlDeGastoRequest;
 use App\Http\Requests\UpdateControlDeGastoRequest;
-use App\ListaDeEvento;
+use Gate;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class ControlDeGastosController extends Controller
 {
-    use MediaUploadingTrait, CsvImportTrait;
+    use MediaUploadingTrait;
 
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = ControlDeGasto::query();
-            $query->with(['cheque', 'evento']);
+            $query = ControlDeGasto::with(['cheque'])->select(sprintf('%s.*', (new ControlDeGasto)->table));
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -42,14 +41,16 @@ class ControlDeGastosController extends Controller
                     'row'
                 ));
             });
-            $table->editColumn('controlDeCheque.cheque', function ($row) {
-                return $row->cheque_id ? $row->cheque->numero_de_cheque : '';
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : "";
             });
+            $table->addColumn('cheque_numero_de_cheque', function ($row) {
+                return $row->cheque ? $row->cheque->numero_de_cheque : '';
+            });
+
             $table->editColumn('descripcion', function ($row) {
                 return $row->descripcion ? $row->descripcion : "";
-            });
-            $table->editColumn('listaDeEvento.evento', function ($row) {
-                return $row->evento_id ? $row->evento->nombre_de_evento : '';
             });
             $table->editColumn('total', function ($row) {
                 return $row->total ? $row->total : "";
@@ -57,7 +58,8 @@ class ControlDeGastosController extends Controller
             $table->editColumn('iva', function ($row) {
                 return $row->iva ? $row->iva : "";
             });
-            $table->rawColumns(['actions', 'placeholder', 'cheque', 'evento']);
+
+            $table->rawColumns(['actions', 'placeholder', 'cheque']);
 
             return $table->make(true);
         }
@@ -67,19 +69,15 @@ class ControlDeGastosController extends Controller
 
     public function create()
     {
-        abort_unless(\Gate::allows('control_de_gasto_create'), 403);
+        abort_if(Gate::denies('control_de_gasto_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $cheques = ControlDeCheque::all()->pluck('numero_de_cheque', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $eventos = ListaDeEvento::all()->pluck('nombre_de_evento', 'id')->prepend(trans('global.pleaseSelect'), '');
-
-        return view('admin.controlDeGastos.create', compact('cheques', 'eventos'));
+        return view('admin.controlDeGastos.create', compact('cheques'));
     }
 
     public function store(StoreControlDeGastoRequest $request)
     {
-        abort_unless(\Gate::allows('control_de_gasto_create'), 403);
-
         $controlDeGasto = ControlDeGasto::create($request->all());
 
         foreach ($request->input('notas', []) as $file) {
@@ -99,21 +97,17 @@ class ControlDeGastosController extends Controller
 
     public function edit(ControlDeGasto $controlDeGasto)
     {
-        abort_unless(\Gate::allows('control_de_gasto_edit'), 403);
+        abort_if(Gate::denies('control_de_gasto_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $cheques = ControlDeCheque::all()->pluck('numero_de_cheque', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $eventos = ListaDeEvento::all()->pluck('nombre_de_evento', 'id')->prepend(trans('global.pleaseSelect'), '');
+        $controlDeGasto->load('cheque');
 
-        $controlDeGasto->load('cheque', 'evento', 'team');
-
-        return view('admin.controlDeGastos.edit', compact('cheques', 'eventos', 'controlDeGasto'));
+        return view('admin.controlDeGastos.edit', compact('cheques', 'controlDeGasto'));
     }
 
     public function update(UpdateControlDeGastoRequest $request, ControlDeGasto $controlDeGasto)
     {
-        abort_unless(\Gate::allows('control_de_gasto_edit'), 403);
-
         $controlDeGasto->update($request->all());
 
         if (count($controlDeGasto->notas) > 0) {
@@ -153,16 +147,16 @@ class ControlDeGastosController extends Controller
 
     public function show(ControlDeGasto $controlDeGasto)
     {
-        abort_unless(\Gate::allows('control_de_gasto_show'), 403);
+        abort_if(Gate::denies('control_de_gasto_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $controlDeGasto->load('cheque', 'evento', 'team');
+        $controlDeGasto->load('cheque');
 
         return view('admin.controlDeGastos.show', compact('controlDeGasto'));
     }
 
     public function destroy(ControlDeGasto $controlDeGasto)
     {
-        abort_unless(\Gate::allows('control_de_gasto_delete'), 403);
+        abort_if(Gate::denies('control_de_gasto_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $controlDeGasto->delete();
 
@@ -173,6 +167,6 @@ class ControlDeGastosController extends Controller
     {
         ControlDeGasto::whereIn('id', request('ids'))->delete();
 
-        return response(null, 204);
+        return response(null, Response::HTTP_NO_CONTENT);
     }
 }

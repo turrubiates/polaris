@@ -16,6 +16,14 @@ class SystemCalendarController extends Controller
             'suffix'     => '',
             'route'      => 'admin.lista-de-eventos.edit',
         ],
+        [
+            'model'      => '\\App\\User',
+            'date_field' => 'vigencia',
+            'field'      => 'cum',
+            'prefix'     => 'Vencimiento de',
+            'suffix'     => '',
+            'route'      => 'admin.users.edit',
+        ],
     ];
 
     public function index()

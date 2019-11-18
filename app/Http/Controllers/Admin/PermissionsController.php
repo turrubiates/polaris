@@ -7,57 +7,30 @@ use App\Http\Requests\MassDestroyPermissionRequest;
 use App\Http\Requests\StorePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
 use App\Permission;
+use Gate;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
+use Symfony\Component\HttpFoundation\Response;
 
 class PermissionsController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        if ($request->ajax()) {
-            $query = Permission::query()->select('*');
+        abort_if(Gate::denies('permission_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-            $table = Datatables::of($query);
+        $permissions = Permission::all();
 
-            $table->addColumn('placeholder', '&nbsp;');
-            $table->addColumn('actions', '&nbsp;');
-
-            $table->editColumn('actions', function ($row) {
-                $viewGate      = 'permission_show';
-                $editGate      = 'permission_edit';
-                $deleteGate    = 'permission_delete';
-                $crudRoutePart = 'permissions';
-
-                return view('partials.datatablesActions', compact(
-                    'viewGate',
-                    'editGate',
-                    'deleteGate',
-                    'crudRoutePart',
-                    'row'
-                ));
-            });
-            $table->editColumn('title', function ($row) {
-                return $row->title ? $row->title : "";
-            });
-            $table->rawColumns(['actions', 'placeholder']);
-
-            return $table->make(true);
-        }
-
-        return view('admin.permissions.index');
+        return view('admin.permissions.index', compact('permissions'));
     }
 
     public function create()
     {
-        abort_unless(\Gate::allows('permission_create'), 403);
+        abort_if(Gate::denies('permission_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.permissions.create');
     }
 
     public function store(StorePermissionRequest $request)
     {
-        abort_unless(\Gate::allows('permission_create'), 403);
-
         $permission = Permission::create($request->all());
 
         return redirect()->route('admin.permissions.index');
@@ -65,15 +38,13 @@ class PermissionsController extends Controller
 
     public function edit(Permission $permission)
     {
-        abort_unless(\Gate::allows('permission_edit'), 403);
+        abort_if(Gate::denies('permission_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.permissions.edit', compact('permission'));
     }
 
     public function update(UpdatePermissionRequest $request, Permission $permission)
     {
-        abort_unless(\Gate::allows('permission_edit'), 403);
-
         $permission->update($request->all());
 
         return redirect()->route('admin.permissions.index');
@@ -81,14 +52,14 @@ class PermissionsController extends Controller
 
     public function show(Permission $permission)
     {
-        abort_unless(\Gate::allows('permission_show'), 403);
+        abort_if(Gate::denies('permission_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.permissions.show', compact('permission'));
     }
 
     public function destroy(Permission $permission)
     {
-        abort_unless(\Gate::allows('permission_delete'), 403);
+        abort_if(Gate::denies('permission_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $permission->delete();
 
@@ -99,6 +70,6 @@ class PermissionsController extends Controller
     {
         Permission::whereIn('id', request('ids'))->delete();
 
-        return response(null, 204);
+        return response(null, Response::HTTP_NO_CONTENT);
     }
 }

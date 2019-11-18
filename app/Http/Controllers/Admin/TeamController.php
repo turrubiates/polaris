@@ -7,7 +7,9 @@ use App\Http\Requests\MassDestroyTeamRequest;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
 use App\Team;
+use Gate;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class TeamController extends Controller
@@ -15,8 +17,7 @@ class TeamController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Team::query()->select('*');
-
+            $query = Team::query()->select(sprintf('%s.*', (new Team)->table));
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -36,9 +37,14 @@ class TeamController extends Controller
                     'row'
                 ));
             });
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : "";
+            });
             $table->editColumn('name', function ($row) {
                 return $row->name ? $row->name : "";
             });
+
             $table->rawColumns(['actions', 'placeholder']);
 
             return $table->make(true);
@@ -49,15 +55,13 @@ class TeamController extends Controller
 
     public function create()
     {
-        abort_unless(\Gate::allows('team_create'), 403);
+        abort_if(Gate::denies('team_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.teams.create');
     }
 
     public function store(StoreTeamRequest $request)
     {
-        abort_unless(\Gate::allows('team_create'), 403);
-
         $team = Team::create($request->all());
 
         return redirect()->route('admin.teams.index');
@@ -65,15 +69,13 @@ class TeamController extends Controller
 
     public function edit(Team $team)
     {
-        abort_unless(\Gate::allows('team_edit'), 403);
+        abort_if(Gate::denies('team_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.teams.edit', compact('team'));
     }
 
     public function update(UpdateTeamRequest $request, Team $team)
     {
-        abort_unless(\Gate::allows('team_edit'), 403);
-
         $team->update($request->all());
 
         return redirect()->route('admin.teams.index');
@@ -81,14 +83,14 @@ class TeamController extends Controller
 
     public function show(Team $team)
     {
-        abort_unless(\Gate::allows('team_show'), 403);
+        abort_if(Gate::denies('team_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.teams.show', compact('team'));
     }
 
     public function destroy(Team $team)
     {
-        abort_unless(\Gate::allows('team_delete'), 403);
+        abort_if(Gate::denies('team_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $team->delete();
 
@@ -99,6 +101,6 @@ class TeamController extends Controller
     {
         Team::whereIn('id', request('ids'))->delete();
 
-        return response(null, 204);
+        return response(null, Response::HTTP_NO_CONTENT);
     }
 }
